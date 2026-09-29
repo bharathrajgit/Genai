@@ -1,0 +1,126 @@
+.header-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  box-shadow: 0px 4px 16px #7b879416;
+  position: fixed;
+  top: 0px;
+  z-index: 1000;
+  background-color: white;
+}
+
+.header-elements-container {
+  width: 85%;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+@media screen and (min-width: 768px) {
+  .header-elements-container {
+    max-width: 1000px;
+  }
+}
+
+.logo {
+  height: 45px;
+}
+
+.main-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 61px;
+}
+
+.video-player-container {
+  width: 85%;
+  margin-top: 50px;
+}
+
+@media screen and (min-width: 768px) {
+  .video-player-container {
+    max-width: 1000px;
+  }
+}
+
+.video-title {
+  color: #334155;
+  font-family: 'Roboto';
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.video-stats {
+  color: #475569;
+  font-family: 'Roboto';
+  font-size: 16px;
+}
+
+.horizontal-line {
+  width: 100%;
+  border: 1px solid #cbd5e140;
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+.comments-container {
+  width: 85%;
+  padding-bottom: 50px;
+  margin-top: 30px;
+}
+
+@media screen and (min-width: 768px) {
+  .comments-container {
+    max-width: 1000px;
+  }
+}
+
+.comments-title {
+  color: #475569;
+  font-family: 'Roboto';
+  font-size: 20px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.comments-list {
+  padding-left: 0;
+  list-style-type: none;
+}
+
+/* Add these styles to your existing CSS file */
+
+.comments-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  width: 100%;
+}
+
+.search-input {
+  height: 36px;
+  width: 240px;
+  padding: 8px 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  font-family: 'Roboto';
+  font-size: 14px;
+  color: #1e293b;
+  outline: none;
+  transition: border-color 0.2s ease-in-out;
+}
+
+/* Responsive styles */
+@media screen and (max-width: 768px) {
+  .comments-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .search-input {
+    width: 100%;
+  }
+}
