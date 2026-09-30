@@ -225,3 +225,181 @@ Encoders:
 
 Decoders:
   - Decoder uses the encoder's understanding to decide what token should be generated next. 
+
+# Encoders Architeture 
+![alt text](image-6.png)
+
+  - Each Encoder layers has these sub layers 
+  - Let's understand each step one by one
+# Multi-head attention:
+
+# Context:
+  - In a word have the different meaning depending on the surrounding words 
+  Ex:
+    - He Went to the bank to deposit a cheque.
+    - He went to the river bank to fish.
+
+    In this case both are different meaning for bank.
+  # Contextual Embedding:
+    - Multi-head self attention -> add and norm -> feed forward -> add and norm
+    - To Solve the above problem. We use the contextual Embedding
+    - Vector that are dynamically updated based on the surrounding words in the sentence
+    ## Self Attention:
+      - Mechanism Where each word in a sentences compares its relationship with all the other words (including itself) to understand context and update its own respresentation accordingly.
+# Multi head Attention:
+![alt text](image-7.png)
+  - Modern LLMs typically have 32-128 heads per encoder
+
+# Feed - Forward Network:
+![alt text](image-8.png)
+
+### <mark>Normalization help While we do the multi-head self attention and feed forward we will add the words that time the range will be overflow more that 1 or in below -1. normalization help to keep in -1 to 1 range </mark>
+
+  - Inside the Encoders have encoder because it help to make the input better understandable 
+    - Input -> Encoder -> Encoder -> Encoder -> Encoder -> Encoder 
+
+    - This structure is repeated several time 
+
+# Decoders:
+  - The Docoder's job is to generate the response, one token at a time.
+
+  -> From Encoder -> Contextual Embeddings -> Decoders -> Next Predicted Token
+
+  ## Decoders Sub-layers
+![alt text](image-9.png) 
+
+# Detailed View
+![alt text](image-10.png)
+
+# Enhance Productivity using AI:
+  - Gemini Guided Learning.
+
+    thereisanalforthat.com
+
+# Tool Calling or Function Calling:
+  - While we Call the LLM provide it didn't get the latest update it only give the resource what are train 
+  EX:
+    - Can you recommend the latest iphone model - in chartgpt if we ask it. it will search in web and update thinks will be said.
+    - Can you recommend the latest iphone model(do not use web search) ? this will be return to us while we use the API to call that
+
+# Knowledge cutoff:
+  - LLMs are trained on data up to a certain data (called knowledge cutoff).
+  - They don't know anything that happend after that date by default.
+
+## What if we want to access real time information like:
+  - current weather, live stock prices, real time sports scores etc..
+
+# Tool/Function Calling:
+  - Is a power feature that allows LLMs to interact with external resources.
+  For tool/function calling the model is important so we are going to use the 
+  Grog (llama-3.3-70b-versatile) 
+    - Grog is a platform that provides multiple AI models, including LLAMA
+
+# Grog LLMs call:
+    !pip install groq
+    from google.colab import userdata
+    from groq import Groq
+
+    client = Groq(
+      api_key=userdata.get('GROQ_API_KEY')
+    )
+
+    response = client.chat.completions.create(
+      messages=[ {
+        "role": "user",
+        "content": "What is the current weather in hyderabad",
+      }], model="openai/gpt-oss-120b",
+    )
+    print(response.choices[0].message.content)
+
+# Tool Definition Structure:
+![alt text](image-11.png)
+
+Function Call for Weather app
+  - Use the openweathermap.org
+  
+    def get_weather(location):
+      api_key = userdata.get('WEATHER_API_KEY')
+      url = f"https://api.openweathermap.org/data/2.5/weather?q={location}&appid={api_key}&units=metric"
+      response = requests.get(url)
+      data = response.json()
+      if data.get('cod') == 200:
+        return json.dumps({
+            "location": location,
+            "temperature": data['main']['temp'],
+            "description": data["weather"][0]["description"],
+        })
+      else:
+        retrun json.dumps({"Oops! Somethings Went Wrong."})
+
+# How to Call the tool:
+
+    tools = [
+      {
+        "type": "function",
+        "function": {
+          "name": "get weather",
+          "description": "get the currect city weather".
+          "parameters": {
+            "type": "Object",
+            "properties": {
+              "location" {
+                "type": "string",
+                "description": "City name like nagapattinam, chennai, coimbatore"
+              }
+            },
+            required: ["location"]
+          }
+        }
+      }
+    ]
+
+# How to use this tools:
+    response = client.chat.completions.create(
+      messages=llm_message,model="openai/gpt-oss-120b",
+      tools=tools,
+      tool_choice="auto"
+    )
+    - use the dir(response) to see this methods and use the below for better format:
+
+      print(response.model_dump_json(indent=2))
+
+# Handing tool calls:
+
+  - The LLM has told us which function to call and with what parameters, but LLMs does not excute tools directly
+  - We have to call the function after the response.
+
+  response_message = response.choice[0].message;
+  if response_message.tool_calls:
+    tool_call = response_messsage.tool_calls
+    argument = json.loads(tool_call.function.argument)
+    location = argument['location']
+    weather_data = get_weather(location)
+    print(weather_data)
+
+# Send Result back to LLM:
+  - Raw API data is not user-friendly
+  - Pass complete conversation history to help LLM understand context.
+  - LLM convert tool data(JSON) into user-friendly response.  
+
+  ## Add LLM tool call to conversation
+    - llm_message.append(response_message)
+
+    - llm_message.append({
+        "role": "tool",
+        "tool_call_id": tool_call.id,
+        "content": json.dumps(weather_data)
+      })
+
+    - Final human like response call the LLM
+      - weather_response = client.chat.completions.create(
+          message=llm_message,
+          model="openai/gpt-oss-120b",
+          tools=tools,
+          tool_choice="auto"
+        )
+
+        print(weather_response.choices[0].message.content)
+
+# Flow Summary:
+![alt text](image-12.png)
